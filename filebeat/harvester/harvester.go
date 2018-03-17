@@ -48,6 +48,7 @@ type Harvester struct {
 	stopWg          *sync.WaitGroup
 	outlet          *channel.Outlet
 	ID              uuid.UUID
+	pattern         string
 }
 
 func NewHarvester(

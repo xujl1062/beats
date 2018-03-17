@@ -23,6 +23,8 @@ type Event struct {
 	Pipeline     string
 	Fileset      string
 	Module       string
+	MatchData    common.MapStr
+	AgentId      string
 }
 
 func NewEvent(state file.State) *Event {
@@ -63,6 +65,16 @@ func (e *Event) ToMapStr() common.MapStr {
 		mergeJSONFields(e, event, jsonFields)
 	} else if e.Text != nil {
 		event["message"] = *e.Text
+	}
+
+	if e.MatchData != nil && len(e.MatchData) > 0 {
+		for k, v := range e.MatchData {
+			event[k] = v
+		}
+	}
+
+	if e.AgentId != "" {
+		event["agentId"] = e.AgentId
 	}
 
 	return event

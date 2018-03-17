@@ -5,6 +5,7 @@ import (
 
 	"github.com/elastic/beats/filebeat/beater"
 	"github.com/elastic/beats/libbeat/beat"
+	_ "github.com/elastic/beats/libbeat/outputs/promout"
 )
 
 var Name = "filebeat"

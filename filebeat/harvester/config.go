@@ -56,6 +56,8 @@ type harvesterConfig struct {
 	Pipeline             string                  `config:"pipeline"`
 	Module               string                  `config:"_module_name"`  // hidden option to set the module name
 	Fileset              string                  `config:"_fileset_name"` // hidden option to set the fileset name
+	Pattern              string                  `config:"pattern"`
+	AgentId              string                  `config:"agentId"`
 }
 
 var onceCheck sync.Once

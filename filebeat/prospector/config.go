@@ -23,10 +23,12 @@ var (
 )
 
 type prospectorConfig struct {
+	AgentId        string          `config:"agentId"` //add by xujl
 	Enabled        bool            `config:"enabled"`
 	ExcludeFiles   []match.Matcher `config:"exclude_files"`
 	IgnoreOlder    time.Duration   `config:"ignore_older"`
 	Paths          []string        `config:"paths"`
+	Pattern        string          `config:"pattern"` // parsing log by grok
 	ScanFrequency  time.Duration   `config:"scan_frequency" validate:"min=0,nonzero"`
 	InputType      string          `config:"input_type"`
 	CleanInactive  time.Duration   `config:"clean_inactive" validate:"min=0"`
@@ -37,6 +39,10 @@ type prospectorConfig struct {
 }
 
 func (config *prospectorConfig) Validate() error {
+
+	if len(config.AgentId) == 0 {
+		return fmt.Errorf("No agentId were defined for prospector")
+	}
 
 	if config.InputType == cfg.LogInputType && len(config.Paths) == 0 {
 		return fmt.Errorf("No paths were defined for prospector")

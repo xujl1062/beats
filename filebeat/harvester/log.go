@@ -18,6 +18,7 @@ import (
 	"github.com/elastic/beats/filebeat/input"
 	"github.com/elastic/beats/filebeat/input/file"
 	"github.com/elastic/beats/libbeat/logp"
+	"github.com/vjeantet/grok"
 )
 
 var (
@@ -80,7 +81,7 @@ func (h *Harvester) Harvest(r reader.Reader) {
 		// Applies when timeout is reached
 		case <-closeTimeout:
 			logp.Info("Closing harvester because close_timeout was reached.")
-		// Required when reader loop returns and reader finished
+			// Required when reader loop returns and reader finished
 		case <-h.done:
 		}
 
@@ -134,7 +135,7 @@ func (h *Harvester) Harvest(r reader.Reader) {
 		// Create state event
 		event := input.NewEvent(state)
 		text := string(message.Content)
-
+		g, _ := grok.New()
 		// Check if data should be added to event. Only export non empty events.
 		if !message.IsEmpty() && h.shouldExportLine(text) {
 			event.ReadTime = message.Ts
@@ -148,6 +149,18 @@ func (h *Harvester) Harvest(r reader.Reader) {
 			event.Pipeline = h.config.Pipeline
 			event.Module = h.config.Module
 			event.Fileset = h.config.Fileset
+			// 添加Hash（project + log path + ）
+			event.AgentId = h.config.AgentId
+
+			// 通过GROK 解析日志，然后把解析后结果塞进event
+			parsingData, err := g.Parse(h.config.Pattern, text)
+			if err != nil {
+				fmt.Errorf("catch err when Pasing text by grok cause : %s \n", err)
+			}
+			event.MatchData = make(map[string]interface{})
+			for k, v := range parsingData {
+				event.MatchData[k] = v
+			}
 		}
 
 		// Always send event to update state, also if lines was skipped
